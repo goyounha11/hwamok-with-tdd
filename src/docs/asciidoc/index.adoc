@@ -1,0 +1,30 @@
+= Hwamok API Document
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 3
+:sectlinks:
+
+[[Login]]
+== 로그인 API
+
+=== Reuqest
+
+CURL:
+
+include::{snippets}/auth/login/curl-request.adoc[]
+
+RequestBody:
+
+include::{snippets}/auth/login/request-body.adoc[]
+
+Request HTTP Example:
+
+include::{snippets}/auth/login/http-request.adoc[]
+
+=== Response
+
+ResponseBody:
+
+include::{snippets}/auth/login/response-body.adoc[]
