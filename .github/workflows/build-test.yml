@@ -33,6 +33,8 @@ jobs:
 
       # ubuntu에 기본으로 깔려있는 mysql 시작
       - name: Set up MySQL
+        with:
+          DB_PASSWORD: 123
         run: |
           sudo /etc/init.d/mysql start
           mysql -e 'CREATE DATABASE hwamoktest;' -uroot -proot
@@ -44,6 +46,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
           cache: 'gradle'
+
+      #gradlew 권한 추가
+      - name: Run chmod to make gradlew executable
+        run: chmod +x ./gradlew
 
       # gradle test 실행
       - name: Integration Test
