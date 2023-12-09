@@ -21,6 +21,25 @@ jobs:
     steps:
       - uses: actions/checkout@main
 
+      # 각종 변수들 세팅
+      - name: set env
+        id: set-envs
+        run: |
+          if [ $GITHUB_REF_NAME = 'develop' ]; then
+            PROFILE=dev
+          else
+            PROFILE=dev
+          fi
+          
+          HWAMOK_ZIP=hwamok-$PROFILE-$(date +'%Y%m%dT%H%M%S%Z')
+          
+          echo "HWAMOK_ZIP : $HWAMOK_ZIP"
+          echo "PROFILE: $PROFILE"
+          
+          echo "::set-output name=PROFILE::$(echo $PROFILE)"
+          echo "::set-output name=HWAMOK_ZIP::$(echo HWAMOK_ZIP)"
+          
+
       # ubuntu에 기본으로 깔려있는 mysql 시작
       - name: Set up MySQL
         run: |
@@ -55,3 +74,25 @@ jobs:
       #.platform/nginx/conf.d -> nginx서버 설정
       # java -jar {name}.jar
       # SaaS => Service as a Service
+
+      # s3로 zip파일 업로드
+      # aws cli 명령어를 통해서 s3에 올린
+      # zip파일을 eb환경으로 업데이트
+
+      - name: move zip
+        run: |
+          mv build/distributions/hwamok.zip build/distributions/${{ steps.set-envs.outputs.HWAMOK_ZIP }}
+
+      - name: upload to s3
+        run: |
+          aws s3 cp build/distributions/${{ steps.set-envs.outputs.HWAMOK_ZIP }} s3://elasticbeanstalk-ap-northeast-2-444923005260
+
+      - name: Api Deploy To Dev Server
+        if: steps.set-envs.outputs.PROFILE == 'dev'
+        run: |
+          aws elasticbeanstalk create-application-version --application-name dev-hwamok \
+              --version-label ${{ steps.set-envs.outputs.HWAMOK_ZIP }} --source-bundle S3Bucket="elasticbeanstalk-ap-northeast-2-444923005260",S3Key="${{ steps.set-envs.outputs.HWAMOK_ZIP }}" \
+              --region=ap-northeast-2
+
+          aws elasticbeanstalk update-environment --application-name dev-hwamok \
+              --environment-name dev-hwamok-env --version-label ${{ steps.set-envs.outputs.HWAMOK_ZIP }}
