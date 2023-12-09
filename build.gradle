@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'com.hwamok'
-version = '0.0.1-SNAPSHOT'
+version = '0.1'
 
 java {
     sourceCompatibility = '17'
@@ -93,6 +93,29 @@ tasks.named('generateSwaggerUIConvert') {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+tasks.register("zip", Zip.class) {
+    //실행가능한 jar파일 만들어야함
+    dependsOn("bootJar")
+
+    //zip파일을 하나 생성해줘야함
+    archiveFileName.set("hwamok.zip")
+
+    //.ebextentions(optional)
+    // Procfile
+    // .platform
+    // 우리의 jar파일
+    from("build/libs/hwamok-with-tdd-0.1.jar") { into("") }
+    from(".platform") { into(".platform") }
+    from("procfiles/Procfile") { into("") }
+
+
+
+}
+
+// zip파일로 만드는 task라는 것을 만듦
+
+
 
 // aws S3에 올린다음 호스팅한다.
 // static/docs/index.html 옮기고 Routing 한다.
